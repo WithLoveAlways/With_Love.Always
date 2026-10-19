@@ -10,11 +10,15 @@ const products = [
   { id: "for-you-gift", name: "For You Gift Candle", price: 90, priceLabel: "Each", description: "A candle presented in a keepsake-ready gift box.", image: "images/image8.jpeg", imageAlt: "Single candle displayed in an open gift box" },
   { id: "garden-glow-pair", name: "Garden Glow Pair", price: 100, priceLabel: "Each", description: "Two decorative candles in warm amber and clear glass.", image: "images/image9.jpeg", imageAlt: "Two decorative flower-shaped candles in amber and clear glass" }
 ];
-let selectedProduct = products[0];
+const selectedProductIds = new Set();
 const productGrid = document.querySelector("#productGrid");
+const selectionSummary = document.querySelector("#selectionSummary");
 const toast = document.querySelector("#toast");
 const orderForm = document.querySelector("#orderForm");
 const orderStatus = document.querySelector("#orderStatus");
+const reviewForm = document.querySelector("#reviewForm");
+const reviewStatus = document.querySelector("#reviewStatus");
+const reviewProduct = document.querySelector("#reviewProduct");
 let giftDetails = { occasion: "Birthday", recipient: "", message: "", wrap: "Gift-ready packaging (confirm availability)" };
 
 function showToast(message) {
@@ -24,19 +28,40 @@ function showToast(message) {
 }
 
 function renderProducts() {
-  productGrid.innerHTML = products.map((product, index) => `
+  reviewProduct.innerHTML += products.map(product => `<option value="${product.name}">${product.name}</option>`).join("");
+  productGrid.innerHTML = products.map(product => `
     <article class="product-card"><div class="product-art has-photo"><img class="product-photo" src="${product.image}" alt="${product.imageAlt}" loading="lazy"><span class="product-photo-price">R${product.price.toFixed(0)} ${product.priceLabel}</span></div>
       <div class="product-info"><div class="product-title-row"><h3>${product.name}</h3><span class="price">R${product.price.toFixed(2)} each</span></div><p>${product.description}</p>
-      <button class="add-button ${index === 0 ? "selected" : ""}" data-product="${product.id}" type="button">${index === 0 ? "✓ Selected for your order" : "Choose this candle"}</button></div></article>`).join("");
+      <button class="add-button" aria-pressed="false" data-product="${product.id}" type="button">Add to enquiry</button></div></article>`).join("");
   productGrid.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => {
-    selectedProduct = products.find(product => product.id === button.dataset.product);
-    productGrid.querySelectorAll("[data-product]").forEach(item => {
-      const active = item.dataset.product === selectedProduct.id;
-      item.classList.toggle("selected", active);
-      item.textContent = active ? "✓ Selected for your order" : "Choose this candle";
-    });
-    showToast(`${selectedProduct.name} selected for your gift request.`);
+    const product = products.find(item => item.id === button.dataset.product);
+    if (selectedProductIds.has(product.id)) {
+      selectedProductIds.delete(product.id);
+      showToast(`${product.name} removed from your enquiry.`);
+    } else {
+      selectedProductIds.add(product.id);
+      showToast(`${product.name} added to your enquiry.`);
+    }
+    updateProductSelection();
   }));
+  updateProductSelection();
+}
+
+function updateProductSelection() {
+  const selectedProducts = products.filter(product => selectedProductIds.has(product.id));
+  const count = selectedProducts.length;
+  const estimatedTotal = selectedProducts.reduce((total, product) => total + product.price, 0);
+
+  selectionSummary.textContent = count === 0
+    ? "No products selected."
+    : `${count} product${count === 1 ? "" : "s"} selected. Estimated total: R${estimatedTotal.toFixed(2)}`;
+
+  productGrid.querySelectorAll("[data-product]").forEach(button => {
+    const selected = selectedProductIds.has(button.dataset.product);
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+    button.textContent = selected ? "Remove from enquiry" : "Add to enquiry";
+  });
 }
 
 function readGiftForm() {
@@ -49,11 +74,18 @@ function readGiftForm() {
 }
 document.querySelector("#giftForm").addEventListener("submit", event => {
   event.preventDefault(); readGiftForm();
-  showToast("Gift details saved for this visit. Choose a candle and send your email enquiry.");
+  showToast("Gift details saved for this visit. Choose your candles and send your email enquiry.");
   document.querySelector("#order").scrollIntoView({ behavior: "smooth" });
 });
 orderForm.addEventListener("submit", async event => {
   event.preventDefault();
+  const selectedProducts = products.filter(product => selectedProductIds.has(product.id));
+  if (selectedProducts.length === 0) {
+    orderStatus.textContent = "Choose at least one candle before sending your enquiry.";
+    document.querySelector("#shop").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
   if (FORMSPREE_FORM_ID === "YOUR_FORMSPREE_FORM_ID") {
     orderStatus.textContent = "Email requests aren't connected yet. Add your Formspree form ID in script.js to receive orders.";
     return;
@@ -63,8 +95,8 @@ orderForm.addEventListener("submit", async event => {
   const submitButton = orderForm.querySelector("button[type='submit']");
   const formData = new FormData(orderForm);
   formData.append("_replyto", formData.get("email"));
-  formData.append("_subject", `Candle gift enquiry: ${selectedProduct.name}`);
-  formData.append("Candle", `${selectedProduct.name} (listed price R${selectedProduct.price.toFixed(2)})`);
+  formData.append("_subject", `Candle gift enquiry: ${selectedProducts.length} item${selectedProducts.length === 1 ? "" : "s"}`);
+  formData.append("Products", selectedProducts.map(product => `${product.name} (R${product.price.toFixed(2)} each)`).join("\n"));
   formData.append("Occasion", giftDetails.occasion);
   formData.append("Gift recipient", giftDetails.recipient || "Not specified");
   formData.append("Gift message", giftDetails.message || "No message added");
@@ -81,9 +113,46 @@ orderForm.addEventListener("submit", async event => {
     });
     if (!response.ok) throw new Error("Form submission failed");
     orderForm.reset();
+    selectedProductIds.clear();
+    updateProductSelection();
     orderStatus.textContent = "Your enquiry was sent. We'll reply to your email soon.";
   } catch {
     orderStatus.textContent = "We couldn't send your enquiry. Please try again in a moment.";
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+reviewForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (FORMSPREE_FORM_ID === "YOUR_FORMSPREE_FORM_ID") {
+    reviewStatus.textContent = "Reviews aren't connected yet. Please try again later.";
+    return;
+  }
+
+  const submitButton = reviewForm.querySelector("button[type='submit']");
+  const formData = new FormData(reviewForm);
+  formData.append("_subject", "Customer review submission - approval required");
+  formData.append("message", [
+    `Review by: ${formData.get("name")}`,
+    `Rating: ${formData.get("rating")} stars`,
+    `Candle: ${formData.get("product") || "General review"}`,
+    `Review: ${formData.get("review")}`,
+    `Publication consent: ${formData.get("publicationConsent") === "yes" ? "Yes" : "No"}`
+  ].join("\n"));
+
+  submitButton.disabled = true;
+  reviewStatus.textContent = "Sending your review...";
+  try {
+    const response = await fetch(`https://formspree.io/f/${FORMSPREE_FORM_ID}`, {
+      method: "POST",
+      body: formData,
+      headers: { Accept: "application/json" }
+    });
+    if (!response.ok) throw new Error("Review submission failed");
+    reviewForm.reset();
+    reviewStatus.textContent = "Thank you. Your review was sent for approval and will not appear until it has been checked.";
+  } catch {
+    reviewStatus.textContent = "We couldn't send your review. Please try again in a moment.";
   } finally {
     submitButton.disabled = false;
   }

@@ -47,6 +47,31 @@ test("every product photo displays its per-item price", () => {
   assert.match(html, /class="hero-price-note">Prices are per candle</);
 });
 
+test("order selection supports multiple products", () => {
+  const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
+
+  assert.match(html, /id="selectionSummary"/);
+  assert.match(script, /const selectedProductIds = new Set\(\)/);
+  assert.match(script, /formData\.append\("Products", selectedProducts\.map/);
+  assert.match(script, /Choose at least one candle before sending your enquiry/);
+});
+
+test("reviews require consent and are submitted for manual approval", () => {
+  const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
+
+  assert.match(html, /id="reviewForm"/);
+  assert.match(html, /name="publicationConsent" type="checkbox" value="yes" required/);
+  assert.match(html, /No reviews yet/);
+  assert.match(script, /Customer review submission - approval required/);
+  assert.match(script, /will not appear until it has been checked/);
+});
+
+test("product photos fit without cropping", () => {
+  const imageStyles = readFileSync(path.join(rootDirectory, "images.css"), "utf8");
+
+  assert.match(imageStyles, /\.product-photo\s*\{[^}]*object-fit:\s*contain/s);
+});
+
 test("in-page links point to existing elements", () => {
   const elementIds = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
   const fragmentTargets = [...html.matchAll(/href="#([^"]+)"/g)].map((match) => match[1]);
