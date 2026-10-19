@@ -70,6 +70,7 @@ test("product photos fit without cropping", () => {
   const imageStyles = readFileSync(path.join(rootDirectory, "images.css"), "utf8");
 
   assert.match(imageStyles, /\.product-photo\s*\{[^}]*object-fit:\s*contain/s);
+  assert.match(imageStyles, /\.product-art\.has-photo\s*\{[^}]*aspect-ratio:\s*3\s*\/\s*4/s);
 });
 
 test("in-page links point to existing elements", () => {

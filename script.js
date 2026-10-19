@@ -8,7 +8,7 @@ const products = [
   { id: "love-note", name: "Love Note Gift", price: 100, priceLabel: "Each", description: "A candle made extra special with a message.", image: "images/packages.jpeg", imageAlt: "Gift box with four candles in colored glass jars" },
   { id: "lavender-rose-duo", name: "Lavender & Rose Duo", price: 90, priceLabel: "Each", description: "A floral candle pairing styled with lavender and rose.", image: "images/image7.jpeg", imageAlt: "Two jar candles styled with dried flowers and lavender" },
   { id: "for-you-gift", name: "For You Gift Candle", price: 90, priceLabel: "Each", description: "A candle presented in a keepsake-ready gift box.", image: "images/image8.jpeg", imageAlt: "Single candle displayed in an open gift box" },
-  { id: "garden-glow-pair", name: "Garden Glow Pair", price: 100, priceLabel: "Each", description: "Two decorative candles in warm amber and clear glass.", image: "images/image9.jpeg", imageAlt: "Two decorative flower-shaped candles in amber and clear glass" }
+  { id: "garden-glow-pair", name: "Garden Glow", price: 100, priceLabel: "Each", description: "Two decorative candles in warm amber and clear glass.", image: "images/image9.jpeg", imageAlt: "Two decorative flower-shaped candles in amber and clear glass" }
 ];
 const selectedProductIds = new Set();
 const productGrid = document.querySelector("#productGrid");

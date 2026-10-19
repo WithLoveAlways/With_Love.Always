@@ -1,4 +1,6 @@
 .product-art.has-photo {
+  height: auto;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
 }
 
