@@ -10,9 +10,12 @@ const products = [
   { id: "for-you-gift", name: "For You Gift Candle", price: 90, priceLabel: "Each", description: "A candle presented in a keepsake-ready gift box.", image: "images/image8.jpeg", imageAlt: "Single candle displayed in an open gift box" },
   { id: "garden-glow-pair", name: "Garden Glow", price: 100, priceLabel: "Each", description: "Two pink floral candles presented in an amber glass dish.", image: "images/image101.jpeg", imageAlt: "Two pink floral candles in an amber glass dish with dried petals" }
 ];
-const selectedProductIds = new Set();
+const cart = new Map();
 const productGrid = document.querySelector("#productGrid");
-const selectionSummary = document.querySelector("#selectionSummary");
+const cartSummary = document.querySelector("#cartSummary");
+const cartEmpty = document.querySelector("#cartEmpty");
+const cartItems = document.querySelector("#cartItems");
+const cartSubtotal = document.querySelector("#cartSubtotal");
 const toast = document.querySelector("#toast");
 const orderForm = document.querySelector("#orderForm");
 const orderStatus = document.querySelector("#orderStatus");
@@ -32,36 +35,60 @@ function renderProducts() {
   productGrid.innerHTML = products.map(product => `
     <article class="product-card"><div class="product-art has-photo"><img class="product-photo" src="${product.image}" alt="${product.imageAlt}" loading="lazy"><span class="product-photo-price">R${product.price.toFixed(0)} ${product.priceLabel}</span></div>
       <div class="product-info"><div class="product-title-row"><h3>${product.name}</h3><span class="price">R${product.price.toFixed(2)} each</span></div><p>${product.description}</p>
-      <button class="add-button" aria-pressed="false" data-product="${product.id}" type="button">Add to enquiry</button></div></article>`).join("");
+      <button class="add-button" data-product="${product.id}" type="button">Add to cart</button></div></article>`).join("");
   productGrid.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => {
     const product = products.find(item => item.id === button.dataset.product);
-    if (selectedProductIds.has(product.id)) {
-      selectedProductIds.delete(product.id);
-      showToast(`${product.name} removed from your enquiry.`);
-    } else {
-      selectedProductIds.add(product.id);
-      showToast(`${product.name} added to your enquiry.`);
-    }
-    updateProductSelection();
+    cart.set(product.id, (cart.get(product.id) || 0) + 1);
+    showToast(`${product.name} added to your cart.`);
+    updateCart();
   }));
-  updateProductSelection();
+  updateCart();
 }
 
-function updateProductSelection() {
-  const selectedProducts = products.filter(product => selectedProductIds.has(product.id));
-  const count = selectedProducts.length;
-  const estimatedTotal = selectedProducts.reduce((total, product) => total + product.price, 0);
+function updateCart() {
+  const cartProducts = products.filter(product => cart.has(product.id));
+  const itemCount = cartProducts.reduce((count, product) => count + cart.get(product.id), 0);
+  const subtotal = cartProducts.reduce((total, product) => total + product.price * cart.get(product.id), 0);
 
-  selectionSummary.textContent = count === 0
-    ? "No products selected."
-    : `${count} product${count === 1 ? "" : "s"} selected. Estimated total: R${estimatedTotal.toFixed(2)}`;
+  cartSummary.textContent = `${itemCount} ${itemCount === 1 ? "item" : "items"}`;
+  cartEmpty.hidden = itemCount > 0;
+  cartItems.hidden = itemCount === 0;
+  cartSubtotal.textContent = `R${subtotal.toFixed(2)}`;
+  cartItems.innerHTML = cartProducts.map(product => {
+    const quantity = cart.get(product.id);
+    return `<li class="cart-item">
+      <div class="cart-item-details"><strong>${product.name}</strong><span>R${product.price.toFixed(2)} each</span></div>
+      <div class="cart-item-actions">
+        <button class="quantity-button" type="button" data-decrease="${product.id}" aria-label="Decrease ${product.name} quantity">−</button>
+        <span class="cart-quantity" aria-label="Quantity">${quantity}</span>
+        <button class="quantity-button" type="button" data-increase="${product.id}" aria-label="Increase ${product.name} quantity">+</button>
+        <button class="remove-button" type="button" data-remove="${product.id}">Remove</button>
+      </div>
+      <strong class="cart-line-total">R${(product.price * quantity).toFixed(2)}</strong>
+    </li>`;
+  }).join("");
 
   productGrid.querySelectorAll("[data-product]").forEach(button => {
-    const selected = selectedProductIds.has(button.dataset.product);
-    button.classList.toggle("selected", selected);
-    button.setAttribute("aria-pressed", String(selected));
-    button.textContent = selected ? "Remove from enquiry" : "Add to enquiry";
+    const quantity = cart.get(button.dataset.product) || 0;
+    button.textContent = quantity > 0 ? `Add another (${quantity} in cart)` : "Add to cart";
   });
+
+  cartItems.querySelectorAll("[data-increase]").forEach(button => button.addEventListener("click", () => {
+    const productId = button.dataset.increase;
+    cart.set(productId, cart.get(productId) + 1);
+    updateCart();
+  }));
+  cartItems.querySelectorAll("[data-decrease]").forEach(button => button.addEventListener("click", () => {
+    const productId = button.dataset.decrease;
+    const quantity = cart.get(productId) - 1;
+    if (quantity === 0) cart.delete(productId);
+    else cart.set(productId, quantity);
+    updateCart();
+  }));
+  cartItems.querySelectorAll("[data-remove]").forEach(button => button.addEventListener("click", () => {
+    cart.delete(button.dataset.remove);
+    updateCart();
+  }));
 }
 
 function readGiftForm() {
@@ -79,9 +106,9 @@ document.querySelector("#giftForm").addEventListener("submit", event => {
 });
 orderForm.addEventListener("submit", async event => {
   event.preventDefault();
-  const selectedProducts = products.filter(product => selectedProductIds.has(product.id));
-  if (selectedProducts.length === 0) {
-    orderStatus.textContent = "Choose at least one candle before sending your enquiry.";
+  const cartProducts = products.filter(product => cart.has(product.id));
+  if (cartProducts.length === 0) {
+    orderStatus.textContent = "Add at least one candle to your cart before sending your enquiry.";
     document.querySelector("#shop").scrollIntoView({ behavior: "smooth" });
     return;
   }
@@ -95,8 +122,11 @@ orderForm.addEventListener("submit", async event => {
   const submitButton = orderForm.querySelector("button[type='submit']");
   const formData = new FormData(orderForm);
   formData.append("_replyto", formData.get("email"));
-  formData.append("_subject", `Candle gift enquiry: ${selectedProducts.length} item${selectedProducts.length === 1 ? "" : "s"}`);
-  formData.append("Products", selectedProducts.map(product => `${product.name} (R${product.price.toFixed(2)} each)`).join("\n"));
+  const itemCount = cartProducts.reduce((count, product) => count + cart.get(product.id), 0);
+  const subtotal = cartProducts.reduce((total, product) => total + product.price * cart.get(product.id), 0);
+  formData.append("_subject", `Candle gift enquiry: ${itemCount} item${itemCount === 1 ? "" : "s"}`);
+  formData.append("Products", cartProducts.map(product => `${product.name} x ${cart.get(product.id)} (R${product.price.toFixed(2)} each; R${(product.price * cart.get(product.id)).toFixed(2)} line total)`).join("\n"));
+  formData.append("Estimated subtotal", `R${subtotal.toFixed(2)}`);
   formData.append("Occasion", giftDetails.occasion);
   formData.append("Gift recipient", giftDetails.recipient || "Not specified");
   formData.append("Gift message", giftDetails.message || "No message added");
@@ -113,8 +143,8 @@ orderForm.addEventListener("submit", async event => {
     });
     if (!response.ok) throw new Error("Form submission failed");
     orderForm.reset();
-    selectedProductIds.clear();
-    updateProductSelection();
+    cart.clear();
+    updateCart();
     orderStatus.textContent = "Your enquiry was sent. We'll reply to your email soon.";
   } catch {
     orderStatus.textContent = "We couldn't send your enquiry. Please try again in a moment.";

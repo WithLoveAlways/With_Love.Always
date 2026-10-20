@@ -47,13 +47,17 @@ test("every product photo displays its per-item price", () => {
   assert.match(html, /class="hero-price-note">Prices are per candle</);
 });
 
-test("order selection supports multiple products", () => {
+test("cart supports quantities, removal, and enquiry totals", () => {
   const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
 
-  assert.match(html, /id="selectionSummary"/);
-  assert.match(script, /const selectedProductIds = new Set\(\)/);
-  assert.match(script, /formData\.append\("Products", selectedProducts\.map/);
-  assert.match(script, /Choose at least one candle before sending your enquiry/);
+  assert.match(html, /id="cartItems"/);
+  assert.match(html, /id="cartSubtotal"/);
+  assert.match(script, /const cart = new Map\(\)/);
+  assert.match(script, /data-increase/);
+  assert.match(script, /data-decrease/);
+  assert.match(script, /data-remove/);
+  assert.match(script, /formData\.append\("Estimated subtotal"/);
+  assert.match(script, /Add at least one candle to your cart before sending your enquiry/);
 });
 
 test("reviews require consent and are submitted for manual approval", () => {
