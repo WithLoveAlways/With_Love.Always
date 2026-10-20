@@ -3,12 +3,12 @@ const FORMSPREE_FORM_ID = "myekoypj";
 
 const products = [
   { id: "soft-blush", name: "Soft Blush", price: 90, priceLabel: "Each", description: "A gentle, romantic candle for quiet evenings.", image: "images/pink.jpeg", imageAlt: "Pink candle in a glass jar with flowers" },
-  { id: "golden-hour", name: "Golden Hour", price: 90, priceLabel: "Each", description: "A warm glow for a little everyday luxury.", image: "images/teal.jpeg", imageAlt: "Teal candle in a glass jar" },
-  { id: "petal-kiss", name: "Petal Kiss", price: 90, priceLabel: "Each", description: "A floral-inspired gift for someone dear.", image: "images/purple.jpeg", imageAlt: "Purple candle in a glass jar with roses" },
+  { id: "golden-hour", name: "Golden Hour", price: 100, priceLabel: "Each", description: "A warm glow for a little everyday luxury.", image: "images/image103.jpeg", imageAlt: "Clear glass bowl candle surrounded by dried flowers" },
+  { id: "petal-kiss", name: "Petal Kiss", price: 90, priceLabel: "Each", description: "A floral-inspired gift for someone dear.", image: "images/image102.jpeg", imageAlt: "Pink candle in a glass jar surrounded by dried petals" },
   { id: "love-note", name: "Love Note Gift", price: 100, priceLabel: "Each", description: "A candle made extra special with a message.", image: "images/packages.jpeg", imageAlt: "Gift box with four candles in colored glass jars" },
   { id: "lavender-rose-duo", name: "Lavender & Rose Duo", price: 90, priceLabel: "Each", description: "A floral candle pairing styled with lavender and rose.", image: "images/image7.jpeg", imageAlt: "Two jar candles styled with dried flowers and lavender" },
   { id: "for-you-gift", name: "For You Gift Candle", price: 90, priceLabel: "Each", description: "A candle presented in a keepsake-ready gift box.", image: "images/image8.jpeg", imageAlt: "Single candle displayed in an open gift box" },
-  { id: "garden-glow-pair", name: "Garden Glow", price: 100, priceLabel: "Each", description: "Two decorative candles in warm amber and clear glass.", image: "images/image9.jpeg", imageAlt: "Two decorative flower-shaped candles in amber and clear glass" }
+  { id: "garden-glow-pair", name: "Garden Glow", price: 100, priceLabel: "Each", description: "Two pink floral candles presented in an amber glass dish.", image: "images/image101.jpeg", imageAlt: "Two pink floral candles in an amber glass dish with dried petals" }
 ];
 const selectedProductIds = new Set();
 const productGrid = document.querySelector("#productGrid");
