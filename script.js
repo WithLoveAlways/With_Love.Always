@@ -2,13 +2,13 @@
 const FORMSPREE_FORM_ID = "myekoypj";
 
 const products = [
-  { id: "soft-blush", name: "Soft Blush", price: 90, priceLabel: "Each", description: "A gentle, romantic candle for quiet evenings.", image: "images/pink.jpeg", imageAlt: "Pink candle in a glass jar with flowers" },
-  { id: "golden-hour", name: "Golden Hour", price: 100, priceLabel: "Each", description: "A warm glow for a little everyday luxury.", image: "images/image103.jpeg", imageAlt: "Clear glass bowl candle surrounded by dried flowers" },
-  { id: "petal-kiss", name: "Petal Kiss", price: 90, priceLabel: "Each", description: "A floral-inspired gift for someone dear.", image: "images/image102.jpeg", imageAlt: "Pink candle in a glass jar surrounded by dried petals" },
+  { id: "soft-blush", name: "Soft Blush", price: 95, priceLabel: "Each", description: "A gentle, romantic candle for quiet evenings.", image: "images/pink.jpeg", imageAlt: "Pink candle in a glass jar with flowers" },
+  { id: "golden-hour", name: "Golden Hour", price: 250, priceLabel: "Each", description: "A warm glow for a little everyday luxury.", image: "images/image103.jpeg", imageAlt: "Clear glass bowl candle surrounded by dried flowers" },
+  { id: "petal-kiss", name: "Petal Kiss", price: 95, priceLabel: "Each", description: "A floral-inspired gift for someone dear.", image: "images/image102.jpeg", imageAlt: "Pink candle in a glass jar surrounded by dried petals" },
   { id: "love-note", name: "Love Note Gift", price: 100, priceLabel: "Each", description: "A candle made extra special with a message.", image: "images/packages.jpeg", imageAlt: "Gift box with four candles in colored glass jars" },
-  { id: "lavender-rose-duo", name: "Lavender & Rose Duo", price: 90, priceLabel: "Each", description: "A floral candle pairing styled with lavender and rose.", image: "images/image7.jpeg", imageAlt: "Two jar candles styled with dried flowers and lavender" },
-  { id: "for-you-gift", name: "For You Gift Candle", price: 90, priceLabel: "Each", description: "A candle presented in a keepsake-ready gift box.", image: "images/image8.jpeg", imageAlt: "Single candle displayed in an open gift box" },
-  { id: "garden-glow-pair", name: "Garden Glow", price: 100, priceLabel: "Each", description: "Two pink floral candles presented in an amber glass dish.", image: "images/image101.jpeg", imageAlt: "Two pink floral candles in an amber glass dish with dried petals" }
+  { id: "lavender-rose-duo", name: "Lavender & Rose Duo", price: 95, priceLabel: "Each", description: "A floral candle pairing styled with lavender and rose.", image: "images/image7.jpeg", imageAlt: "Two jar candles styled with dried flowers and lavender" },
+  { id: "for-you-gift", name: "For You Gift Candle", price: 95, priceLabel: "Each", description: "A candle presented in a keepsake-ready gift box.", image: "images/image8.jpeg", imageAlt: "Single candle displayed in an open gift box" },
+  { id: "garden-glow-pair", name: "Garden Glow", price: 250, priceLabel: "Each", description: "Two pink floral candles presented in an amber glass dish.", image: "images/image101.jpeg", imageAlt: "Two pink floral candles in an amber glass dish with dried petals" }
 ];
 const cart = new Map();
 const productGrid = document.querySelector("#productGrid");
