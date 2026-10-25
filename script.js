@@ -154,7 +154,7 @@ orderForm.addEventListener("submit", async event => {
     submitButton.disabled = false;
   }
 });
-document.querySelector("#whatsappButton").addEventListener("click", () => {
+document.querySelectorAll("[data-whatsapp-order]").forEach(button => button.addEventListener("click", () => {
   if (WHATSAPP_BUSINESS_NUMBER.includes("X")) {
     orderStatus.textContent = "Add your public WhatsApp Business number in script.js to use WhatsApp ordering.";
     return;
@@ -187,7 +187,7 @@ document.querySelector("#whatsappButton").addEventListener("click", () => {
   ].join("\n");
 
   window.open(`https://wa.me/${businessNumber}?text=${encodeURIComponent(orderMessage)}`, "_blank", "noopener,noreferrer");
-});
+}));
 reviewForm.addEventListener("submit", async event => {
   event.preventDefault();
   if (FORMSPREE_FORM_ID === "YOUR_FORMSPREE_FORM_ID") {

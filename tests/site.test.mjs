@@ -103,6 +103,7 @@ test("WhatsApp option builds a cart enquiry with a configurable public number", 
   const numberMatch = script.match(/const WHATSAPP_BUSINESS_NUMBER = "([^"]+)"/);
 
   assert.match(html, /id="whatsappButton"/);
+  assert.equal([...html.matchAll(/data-whatsapp-order/g)].length, 2);
   assert.ok(numberMatch, "WhatsApp business number setting is missing");
   assert.ok(
     numberMatch[1] === "27XXXXXXXXX" || /^\d{10,15}$/.test(numberMatch[1]),
