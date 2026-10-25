@@ -27,6 +27,10 @@ test("local HTML assets exist", () => {
   }
 });
 
+test("footer links to the Instagram profile safely", () => {
+  assert.match(html, /href="https:\/\/www\.instagram\.com\/with_love_always_candles\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
+});
+
 test("product photos exist", () => {
   const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
   const productImages = [...script.matchAll(/\bimage:\s*"([^"]+)"/g)]
@@ -86,11 +90,25 @@ test("in-page links point to existing elements", () => {
   }
 });
 
-test("private email enquiry form replaces direct WhatsApp contact", () => {
+test("email enquiries use Formspree", () => {
   const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
 
   assert.match(html, /id="orderForm"/);
   assert.match(html, /id="customerEmail"/);
   assert.match(script, /https:\/\/formspree\.io\/f\/\$\{FORMSPREE_FORM_ID\}/);
-  assert.doesNotMatch(script, /wa\.me|WHATSAPP_NUMBER/);
+});
+
+test("WhatsApp option builds a cart enquiry with a configurable public number", () => {
+  const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
+  const numberMatch = script.match(/const WHATSAPP_BUSINESS_NUMBER = "([^"]+)"/);
+
+  assert.match(html, /id="whatsappButton"/);
+  assert.ok(numberMatch, "WhatsApp business number setting is missing");
+  assert.ok(
+    numberMatch[1] === "27XXXXXXXXX" || /^\d{10,15}$/.test(numberMatch[1]),
+    "WhatsApp business number must be the placeholder or 10-15 international digits"
+  );
+  assert.match(script, /if \(WHATSAPP_BUSINESS_NUMBER\.includes\("X"\)\)/);
+  assert.match(script, /cartProducts\.map\(product => `\$\{product\.name\} x \$\{cart\.get\(product\.id\)\}/);
+  assert.match(script, /https:\/\/wa\.me\/\$\{businessNumber\}\?text=/);
 });

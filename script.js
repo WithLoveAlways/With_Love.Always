@@ -1,5 +1,7 @@
 // Add the public form ID from your Formspree dashboard before accepting enquiries.
 const FORMSPREE_FORM_ID = "myekoypj";
+// Replace with your public WhatsApp Business number in international digits-only format.
+const WHATSAPP_BUSINESS_NUMBER = "27759464369";
 
 const products = [
   { id: "soft-blush", name: "Soft Blush", price: 95, priceLabel: "Each", description: "A gentle, romantic candle for quiet evenings.", image: "images/pink.jpeg", imageAlt: "Pink candle in a glass jar with flowers" },
@@ -151,6 +153,40 @@ orderForm.addEventListener("submit", async event => {
   } finally {
     submitButton.disabled = false;
   }
+});
+document.querySelector("#whatsappButton").addEventListener("click", () => {
+  if (WHATSAPP_BUSINESS_NUMBER.includes("X")) {
+    orderStatus.textContent = "Add your public WhatsApp Business number in script.js to use WhatsApp ordering.";
+    return;
+  }
+
+  const cartProducts = products.filter(product => cart.has(product.id));
+  if (cartProducts.length === 0) {
+    orderStatus.textContent = "Add at least one candle to your cart before opening WhatsApp.";
+    document.querySelector("#shop").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  const businessNumber = WHATSAPP_BUSINESS_NUMBER.replace(/\D/g, "");
+  if (!businessNumber) {
+    orderStatus.textContent = "Check the WhatsApp Business number in script.js; use international digits only.";
+    return;
+  }
+
+  readGiftForm();
+  const itemCount = cartProducts.reduce((count, product) => count + cart.get(product.id), 0);
+  const subtotal = cartProducts.reduce((total, product) => total + product.price * cart.get(product.id), 0);
+  const orderMessage = [
+    "Hello! I'd like to enquire about a candle gift from With Love, Always.", "",
+    ...cartProducts.map(product => `${product.name} x ${cart.get(product.id)} (R${product.price.toFixed(2)} each)`),
+    `Items: ${itemCount}`, `Estimated subtotal: R${subtotal.toFixed(2)}`,
+    `Occasion: ${giftDetails.occasion}`, `Gift recipient: ${giftDetails.recipient || "Not specified"}`,
+    `Gift message: ${giftDetails.message || "No message added"}`, `Packaging: ${giftDetails.wrap}`,
+    `Reply email: ${document.querySelector("#customerEmail").value || "Not provided"}`, "",
+    "Please confirm availability, delivery and final pricing before payment. Thank you!"
+  ].join("\n");
+
+  window.open(`https://wa.me/${businessNumber}?text=${encodeURIComponent(orderMessage)}`, "_blank", "noopener,noreferrer");
 });
 reviewForm.addEventListener("submit", async event => {
   event.preventDefault();

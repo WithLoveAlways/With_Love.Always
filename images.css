@@ -241,6 +241,16 @@
   border-radius: 50%;
 }
 
+.footer-social-link {
+  font-size: .82rem;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.footer-social-link:hover {
+  color: var(--pink-deep);
+}
+
 .hero-art-photo {
   position: absolute;
   inset: 0;
