@@ -42,6 +42,14 @@ test("product photos exist", () => {
   }
 });
 
+test("sold-out products are labeled and cannot be added to the cart", () => {
+  const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
+
+  assert.match(script, /id: "soft-blush"[^\n]*soldOut: true/);
+  assert.match(script, /class="product-photo-status">Sold out</);
+  assert.match(script, /product\.soldOut \? 'disabled aria-disabled/);
+});
+
 test("every product photo displays its per-item price", () => {
   const script = readFileSync(path.join(rootDirectory, "script.js"), "utf8");
   const priceLabels = [...script.matchAll(/priceLabel:\s*"Each"/g)];

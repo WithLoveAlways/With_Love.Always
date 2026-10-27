@@ -4,7 +4,7 @@ const FORMSPREE_FORM_ID = "myekoypj";
 const WHATSAPP_BUSINESS_NUMBER = "27759464369";
 
 const products = [
-  { id: "soft-blush", name: "Soft Blush", price: 95, priceLabel: "Each", description: "A gentle, romantic candle for quiet evenings.", image: "images/pink.jpeg", imageAlt: "Pink candle in a glass jar with flowers" },
+  { id: "soft-blush", name: "Soft Blush", price: 95, priceLabel: "Each", soldOut: true, description: "A gentle, romantic candle for quiet evenings.", image: "images/pink.jpeg", imageAlt: "Pink candle in a glass jar with flowers" },
   { id: "golden-hour", name: "Golden Hour", price: 250, priceLabel: "Each", description: "A warm glow for a little everyday luxury.", image: "images/image103.jpeg", imageAlt: "Clear glass bowl candle surrounded by dried flowers" },
   { id: "petal-kiss", name: "Petal Kiss", price: 95, priceLabel: "Each", description: "A floral-inspired gift for someone dear.", image: "images/image102.jpeg", imageAlt: "Pink candle in a glass jar surrounded by dried petals" },
   { id: "love-note", name: "Love Note Gift", price: 100, priceLabel: "Each", description: "A candle made extra special with a message.", image: "images/packages.jpeg", imageAlt: "Gift box with four candles in colored glass jars" },
@@ -35,9 +35,9 @@ function showToast(message) {
 function renderProducts() {
   reviewProduct.innerHTML += products.map(product => `<option value="${product.name}">${product.name}</option>`).join("");
   productGrid.innerHTML = products.map(product => `
-    <article class="product-card"><div class="product-art has-photo"><img class="product-photo" src="${product.image}" alt="${product.imageAlt}" loading="lazy"><span class="product-photo-price">R${product.price.toFixed(0)} ${product.priceLabel}</span></div>
+    <article class="product-card"><div class="product-art has-photo ${product.soldOut ? "sold-out-product" : ""}"><img class="product-photo" src="${product.image}" alt="${product.imageAlt}" loading="lazy"><span class="product-photo-price">R${product.price.toFixed(0)} ${product.priceLabel}</span>${product.soldOut ? '<span class="product-photo-status">Sold out</span>' : ""}</div>
       <div class="product-info"><div class="product-title-row"><h3>${product.name}</h3><span class="price">R${product.price.toFixed(2)} each</span></div><p>${product.description}</p>
-      <button class="add-button" data-product="${product.id}" type="button">Add to cart</button></div></article>`).join("");
+      <button class="add-button" ${product.soldOut ? 'disabled aria-disabled="true"' : `data-product="${product.id}"`} type="button">${product.soldOut ? "Sold out" : "Add to cart"}</button></div></article>`).join("");
   productGrid.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => {
     const product = products.find(item => item.id === button.dataset.product);
     cart.set(product.id, (cart.get(product.id) || 0) + 1);
